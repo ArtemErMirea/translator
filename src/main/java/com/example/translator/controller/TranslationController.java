@@ -14,11 +14,10 @@ public class TranslationController {
     }
 
     @PostMapping
-    public String translate(
-            @RequestParam String input,
-            @RequestParam String sourceLang,
-            @RequestParam String targetLang,
-            @RequestHeader(value = "X-Forwarded-For", defaultValue = "127.0.0.1") String ipAddress) {
+    public String translate(@RequestParam String input,
+                            @RequestParam String sourceLang,
+                            @RequestParam String targetLang,
+                            @RequestHeader(value = "X-Forwarded-For", defaultValue = "127.0.0.1") String ipAddress) {
         return translationService.translate(input, sourceLang, targetLang, ipAddress);
     }
 }

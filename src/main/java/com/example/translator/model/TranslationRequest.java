@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TranslationRequest {
+
     @Id
     private Long id;
     private String ipAddress;

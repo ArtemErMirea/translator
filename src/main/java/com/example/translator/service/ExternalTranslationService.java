@@ -1,19 +1,18 @@
 package com.example.translator.service;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.Map;
-import java.util.List;
 
 @Service
-public class ExternalTranslationService implements TranslationAPI {
+public class ExternalTranslationService {
 
     private final RestTemplate restTemplate;
 
@@ -24,9 +23,9 @@ public class ExternalTranslationService implements TranslationAPI {
         this.restTemplate = restTemplate;
     }
 
-    @Override
     public String translateWord(String word, String sourceLang, String targetLang) {
-        String url = UriComponentsBuilder.fromHttpUrl("https://google-translate1.p.rapidapi.com/language/translate/v2")
+        //String url = UriComponentsBuilder.fromHttpUrl("https://deep-translate1.p.rapidapi.com/language/translate/v2")
+        String url = UriComponentsBuilder.fromHttpUrl("https://google-translator9.p.rapidapi.com/v2")
                 .queryParam("q", word)
                 .queryParam("source", sourceLang)
                 .queryParam("target", targetLang)
@@ -34,9 +33,10 @@ public class ExternalTranslationService implements TranslationAPI {
                 .toUriString();
 
         HttpHeaders headers = new HttpHeaders();
-        headers.set("Content-Type", "application/x-www-form-urlencoded");
-        headers.set("X-RapidAPI-Host", "google-translate1.p.rapidapi.com");
-        headers.set("X-RapidAPI-Key", rapidApiKey);
+        headers.set("Content-Type", "application/json");
+        //headers.set("x-rapidapi-host", "deep-translate1.p.rapidapi.com");
+        headers.set("x-rapidapi-host", "google-translator9.p.rapidapi.com");
+        headers.set("x-rapidapi-key", rapidApiKey);
 
         HttpEntity<?> entity = new HttpEntity<>(headers);
 
