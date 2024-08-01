@@ -4,10 +4,12 @@ import org.springframework.stereotype.Service;
 import com.example.translator.model.TranslationRequests;
 import com.example.translator.repository.TranslationRequestRepository;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.web.client.HttpClientErrorException;
 
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -29,6 +31,8 @@ public class InternalTranslationService {
         // какое количество потоков будет готово (запущено)
         // при старте executor сервиса как 10.
         this.executor.setCorePoolSize(10);
+        this.executor.setMaxPoolSize(20);  // Устанавливаем максимальный размер пула
+        this.executor.setQueueCapacity(50); // Устанавливаем ёмкость очереди
         this.executor.initialize();
     }
 
@@ -45,16 +49,19 @@ public class InternalTranslationService {
         String[] words = input.split(" ");
         //Список Future-ов - результатов параллельных вычислений
         // Созданы задачи для перевода каждого слова
-        List<Future<String>> futures = Stream.of(words)
-                .map(word -> executor.submit(
-                        () -> externalTranslationService.translateWord(
-                                word, sourceLang, targetLang)
-                )).toList();
+        List<CompletableFuture<String>> futures = Stream.of(words)
+                .map(word -> CompletableFuture.supplyAsync(
+                        () -> retryWithBackoff(
+                                () -> externalTranslationService.translateWord(word, sourceLang, targetLang)
+                        ), executor
+                )).collect(Collectors.toList());
 
-        // Собираем результаты переводов в единый String
-        String translatedString = futures.stream()
+        // Обработка всех результатов
+        List<String> translatedWords = futures.stream()
                 .map(this::getFutureResult)
-                .collect(Collectors.joining(" "));
+                .collect(Collectors.toList());
+
+        String translatedString = String.join(" ", translatedWords);
 
         // Сохраняем запрос в базу данных
         TranslationRequests request = new TranslationRequests(
@@ -65,12 +72,31 @@ public class InternalTranslationService {
         return translatedString;
     }
 
-    private String getFutureResult(Future<String> future) {
+    private String getFutureResult(CompletableFuture<String> future) {
         try {
-            // ждёт завершения расчётов и возвращает результат
-            return future.get();
+            return future.get(); // Ожидание результата
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            // Логирование ошибки и возвращение пустой строки
+            System.err.println("Error while fetching translation result: " + e.getMessage());
+            return "";
         }
+    }
+    private String retryWithBackoff(Supplier<String> task) {
+        int attempt = 0;
+        int maxRetries = 6;
+        while (attempt < maxRetries) {
+            try {
+                return task.get();
+            } catch (HttpClientErrorException.TooManyRequests e) {
+                attempt++;
+                try {
+                    // Ожидание перед повторной попыткой
+                    TimeUnit.SECONDS.sleep((long) Math.pow(2, attempt)); // Exponential backoff
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        }
+        throw new RuntimeException("Failed after retries");
     }
 }
