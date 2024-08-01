@@ -1,16 +1,18 @@
 package com.example.translator.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.LocalDateTime;
 
 @Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class TranslationRequest {
+@Table("translation_requests")
+public class TranslationRequests {
 
     @Id
     private Long id;

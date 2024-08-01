@@ -1,7 +1,7 @@
 package com.example.translator.service;
 
 import org.springframework.stereotype.Service;
-import com.example.translator.model.TranslationRequest;
+import com.example.translator.model.TranslationRequests;
 import com.example.translator.repository.TranslationRequestRepository;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
@@ -57,7 +57,7 @@ public class InternalTranslationService {
                 .collect(Collectors.joining(" "));
 
         // Сохраняем запрос в базу данных
-        TranslationRequest request = new TranslationRequest(
+        TranslationRequests request = new TranslationRequests(
                 null, ipAddress, input, translatedString, LocalDateTime.now()
         );
         translationRequestRepository.save(request);
