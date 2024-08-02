@@ -2,26 +2,33 @@ package com.example.translator.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.*;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.net.URI;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 @Service
 public class ExternalTranslationService {
 
     private static final Logger logger = LoggerFactory.getLogger(ExternalTranslationService.class);
-    //@Autowired private Environment env;
 
     private final RestTemplate restTemplate;
 
@@ -30,40 +37,59 @@ public class ExternalTranslationService {
 
     public ExternalTranslationService(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
-        //this.rapidApiKey = env.getProperty("rapidapi.key");
     }
 
+    @SneakyThrows
+    @Retryable(
+            retryFor = { Exception.class },
+            maxAttempts = 3,
+            backoff = @Backoff(delay = 1000, multiplier = 2))
     public String translateWord(String word, String sourceLang, String targetLang) {
         try {
-            String url = UriComponentsBuilder.fromHttpUrl("https://google-translator9.p.rapidapi.com/v2")
+            String baseUrl = "https://google-translator9.p.rapidapi.com/v2";
+
+            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(baseUrl)
                     .queryParam("q", word)
                     .queryParam("source", sourceLang)
-                    .queryParam("target", targetLang)
-                    .queryParam("format", "text")
-                    .toUriString();
+                    .queryParam("target", targetLang);
+
+            URI uri = builder.build().toUri();
 
             HttpHeaders headers = new HttpHeaders();
-            headers.set("Content-Type", "application/json");
+            headers.setContentType(MediaType.APPLICATION_JSON);
             headers.set("x-rapidapi-host", "google-translator9.p.rapidapi.com");
             headers.set("x-rapidapi-key", rapidApiKey);
 
-            RestTemplate restTemplate = new RestTemplate();
-            HttpEntity<String> entity = new HttpEntity<>(headers);
+            HttpEntity<Void> entity = new HttpEntity<>(headers);
 
-            logger.info("Sending request to URL: " + url);
+            logger.info("Sending request to URL: " + uri);
             logger.info("Request headers: " + headers.toString());
 
-            ResponseEntity<String> response = restTemplate.postForEntity(url, entity, String.class);
+            ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.POST, entity, String.class);
 
-            logger.info("Received response: " + response.getBody());
+            String responseBody = response.getBody();
+
+            logger.info("Received response: " + responseBody);
 
             ObjectMapper objectMapper = new ObjectMapper();
-            JsonNode root = objectMapper.readTree(response.getBody());
-            return root.path("data").path("translations").get(0).path("translatedText").asText();
+            JsonNode root = objectMapper.readTree(responseBody);
+            JsonNode translations = root.path("data").path("translations");
 
+            if (translations.isArray() && !translations.isEmpty()) {
+                String translatedText = translations.get(0).path("translatedText").asText();
+                return URLDecoder.decode(translatedText, StandardCharsets.UTF_8);
+            } else {
+                logger.warn("No translations found in the response.");
+                return "";
+            }
+
+        } catch (HttpClientErrorException.TooManyRequests e) {
+            logger.error("HTTP error during translation: ", e);
+            throw e;  // Re-throw the exception to trigger the retry
         } catch (Exception e) {
             logger.error("Error during translation: ", e);
-            return null;
+            throw e;  // Re-throw the exception to trigger the retry
         }
     }
 }
+

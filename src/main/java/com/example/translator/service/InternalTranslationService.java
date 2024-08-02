@@ -1,11 +1,14 @@
 package com.example.translator.service;
 
+import com.google.common.util.concurrent.RateLimiter;
 import org.springframework.stereotype.Service;
 import com.example.translator.model.TranslationRequests;
 import com.example.translator.repository.TranslationRequestRepository;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.client.HttpClientErrorException;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.*;
@@ -21,6 +24,7 @@ public class InternalTranslationService {
     private final TranslationRequestRepository translationRequestRepository;
 
     private final ThreadPoolTaskExecutor executor;
+    //private final RateLimiter rateLimiter;
 
     public InternalTranslationService(ExternalTranslationService externalTranslationService,
                                       TranslationRequestRepository translationRequestRepository) {
@@ -30,10 +34,9 @@ public class InternalTranslationService {
         // Задаём параметр, который показывает,
         // какое количество потоков будет готово (запущено)
         // при старте executor сервиса как 10.
-        this.executor.setCorePoolSize(10);
-        this.executor.setMaxPoolSize(20);  // Устанавливаем максимальный размер пула
-        this.executor.setQueueCapacity(50); // Устанавливаем ёмкость очереди
+        this.executor.setMaxPoolSize(10);
         this.executor.initialize();
+        //this.rateLimiter = RateLimiter.create(5.0); // Используемое API имеет ограничение 5 запросов в секунду
     }
 
     /**
@@ -50,11 +53,10 @@ public class InternalTranslationService {
         //Список Future-ов - результатов параллельных вычислений
         // Созданы задачи для перевода каждого слова
         List<CompletableFuture<String>> futures = Stream.of(words)
-                .map(word -> CompletableFuture.supplyAsync(
-                        () -> retryWithBackoff(
-                                () -> externalTranslationService.translateWord(word, sourceLang, targetLang)
-                        ), executor
-                )).collect(Collectors.toList());
+                .map(word -> CompletableFuture.supplyAsync(() -> {
+                    //rateLimiter.acquire(); // Ограничение скорости
+                    return externalTranslationService.translateWord(word, sourceLang, targetLang);
+                }, executor)).toList();
 
         // Обработка всех результатов
         List<String> translatedWords = futures.stream()
@@ -81,6 +83,12 @@ public class InternalTranslationService {
             return "";
         }
     }
+
+    private String urlEncode(String word) {
+        return URLEncoder.encode(word, StandardCharsets.UTF_8);
+    }
+
+    /*
     private String retryWithBackoff(Supplier<String> task) {
         int attempt = 0;
         int maxRetries = 6;
@@ -99,4 +107,5 @@ public class InternalTranslationService {
         }
         throw new RuntimeException("Failed after retries");
     }
+     */
 }
