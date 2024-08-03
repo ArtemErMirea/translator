@@ -1,18 +1,15 @@
 package com.example.translator.service;
 
-import com.google.common.util.concurrent.RateLimiter;
-import org.springframework.stereotype.Service;
 import com.example.translator.model.TranslationRequests;
 import com.example.translator.repository.TranslationRequestRepository;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.stereotype.Service;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.util.*;
-import java.util.concurrent.*;
-import java.util.function.Supplier;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -83,29 +80,4 @@ public class InternalTranslationService {
             return "";
         }
     }
-
-    private String urlEncode(String word) {
-        return URLEncoder.encode(word, StandardCharsets.UTF_8);
-    }
-
-    /*
-    private String retryWithBackoff(Supplier<String> task) {
-        int attempt = 0;
-        int maxRetries = 6;
-        while (attempt < maxRetries) {
-            try {
-                return task.get();
-            } catch (HttpClientErrorException.TooManyRequests e) {
-                attempt++;
-                try {
-                    // Ожидание перед повторной попыткой
-                    TimeUnit.SECONDS.sleep((long) Math.pow(2, attempt)); // Exponential backoff
-                } catch (InterruptedException ie) {
-                    Thread.currentThread().interrupt();
-                }
-            }
-        }
-        throw new RuntimeException("Failed after retries");
-    }
-     */
 }

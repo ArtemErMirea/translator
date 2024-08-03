@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 public class TranslationController {
 
     private final InternalTranslationService translationService;
+
     @PostMapping
     public ResponseEntity<String> translate(@RequestBody TranslationRequestBody request,
                                             @RequestHeader(value = "X-Forwarded-For", defaultValue = "127.0.0.1") String ipAddress) {

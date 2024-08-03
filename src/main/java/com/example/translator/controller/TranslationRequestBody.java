@@ -8,8 +8,8 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 public class TranslationRequestBody {
-    private String q;
-    private String source;
-    private String target;
-    private String format;
+    private String q; // Переводимое слово
+    private String source; // Исходный язык
+    private String target; // Язык перевода
+    private String format; // Формат
 }

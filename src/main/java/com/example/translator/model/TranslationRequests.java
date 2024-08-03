@@ -16,8 +16,8 @@ public class TranslationRequests {
 
     @Id
     private Long id;
-    private String ipAddress;
-    private String inputString;
-    private String translatedString;
-    private LocalDateTime requestTime;
+    private String ipAddress; //IP-адрес
+    private String inputString; // входная строка для перевода
+    private String translatedString; // результат перевода
+    private LocalDateTime requestTime; // дата и время перевода
 }

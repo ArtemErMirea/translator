@@ -6,7 +6,7 @@ import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.web.client.RestTemplate;
 
 @Configuration
-@EnableRetry
+@EnableRetry // Включаем поддержку повторяемых методов
 public class RestTemplateConfig {
 
     @Bean
