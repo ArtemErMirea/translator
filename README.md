@@ -62,5 +62,6 @@ curl --location 'http://localhost:8080/translate' \
   "format": "text"
 }'
 ```
-
+```sh
 curl --location 'http://localhost:8080/languages'
+```
