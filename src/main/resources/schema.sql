@@ -1,3 +1,4 @@
+--Комaнда создания таблицы для PostgeSQL
 CREATE TABLE translation_requests (
     id BIGSERIAL PRIMARY KEY,
     ip_address VARCHAR(255) NOT NULL,

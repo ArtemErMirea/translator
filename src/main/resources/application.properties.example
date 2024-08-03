@@ -1,0 +1,11 @@
+spring.application.name=translator
+
+rapidapi.key=YOUR_KEY
+baseUrl = https://google-translator9.p.rapidapi.com/v2
+languageUrl = https://google-translator9.p.rapidapi.com/v2/languages
+
+# ???????????? ??? PostgreSQL
+spring.datasource.url=jdbc:postgresql://localhost:5432/YOUR_DB
+spring.datasource.username=YOUR_USERNAME
+spring.datasource.password=YOUR_PASSWORD
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
