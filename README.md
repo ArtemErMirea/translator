@@ -44,3 +44,5 @@ curl --location 'http://localhost:8080/translate' \
   "target": "de",
   "format": "text"
 }'
+
+curl --location 'http://localhost:8080/languages'
