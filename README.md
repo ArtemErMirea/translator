@@ -2,7 +2,7 @@
 
 ## Описание
 Это приложение выполняет перевод набора слов с одного языка на другой с использованием внешнего сервиса перевода. В качестве сервиса используется Google Translate через Rapid API https://rapidapi.com/IRCTCAPI/api/google-translator9/playground/
-Если ключ потребуется заменить - просто зарегестрируйтесь на Rapid API и подписаться бесплатно на  Google Translate API  и задайте его в `rapidapi.key` в `application.properties`
+Если ключ потребуется заменить - просто зарегестрируйтесь на Rapid API и подписаться бесплатно на  Google Translate API  и задайте его в `rapidapi.key` в `application.properties`. Пример заполнения можно увидеть в `application.properties.example`
 ## Запуск приложения
 
 ### Требования
@@ -33,10 +33,10 @@ CREATE TABLE translation_requests (
 );
 ```
 ```properties
-Подключение подпишите в файле application.properties:
-spring.datasource.url=jdbc:postgresql://localhost:5432/translations
-spring.datasource.username=
-spring.datasource.password=
+# Подключение подпишите в файле application.properties:
+spring.datasource.url=jdbc:postgresql://localhost:5432/YOUR_DB
+spring.datasource.username=YOUR_USERNAME
+spring.datasource.password=YOUR_PASSWORD
 spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
 ```
 ## Использование
