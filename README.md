@@ -74,7 +74,7 @@ curl --location 'http://localhost:8080/languages'
 
 ![image](https://github.com/user-attachments/assets/1863bfb7-887a-4000-9680-56bb4a798856)
 
-### Если ввести неправильный исхдный язык:
+### Если ввести неправильный исходный язык:
 
 ![image](https://github.com/user-attachments/assets/495ec2fc-9407-41db-95c9-76bb738d3c94)
 
