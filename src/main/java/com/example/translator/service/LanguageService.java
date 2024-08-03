@@ -42,44 +42,53 @@ public class LanguageService {
     @Autowired
     public LanguageService(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
+        // Инициализируем список доступных языков при создании экземпляра сервиса
         fetchAvailableLanguages();
     }
 
     @PostConstruct
     private void fetchAvailableLanguages() {
         try {
+            // Получаем список поддерживаемых языков
             this.availableLanguages = getSupportedLanguages();
         } catch (Exception e) {
-            logger.error("Failed to fetch available languages", e);
+            // Логируем ошибку при неудачной попытке получить список языков
+            logger.error("Не удалось получить список языков", e);
             this.availableLanguages = new TreeSet<>();
         }
     }
+
     @SneakyThrows
-    // Повторяем при выбросе исключения. До 3-х повторений (по умолчанию) с увеличивающимся интервалом
+    // Повторяем при выбросе исключения. До 3-х повторений с увеличивающимся интервалом
     @Retryable(
             retryFor = { Exception.class },
             backoff = @Backoff(delay = 1000, multiplier = 2))
     public TreeSet<String> getSupportedLanguages() {
-        String target = "en"; // Specify the target language here
+        String target = "en"; // Указываем целевой язык
 
+        // URI с параметрами запроса
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(baseUrl)
                 .queryParam("target", target);
 
         URI uri = builder.build().toUri();
 
+        // Устанавливаем заголовки для запроса
         HttpHeaders headers = new HttpHeaders();
         headers.set("x-rapidapi-host", "google-translator9.p.rapidapi.com");
         headers.set("x-rapidapi-key", rapidApiKey);
 
         HttpEntity<Void> entity = new HttpEntity<>(headers);
 
+        // Выполняем запрос и получаем ответ
         ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.GET, entity, String.class);
         String responseBody = response.getBody();
 
+        // Логируем полученный ответ
         logger.info("Received response: " + responseBody);
 
         if (response.getStatusCode() == HttpStatus.OK) {
             try {
+                // Парсим ответ и извлекаем список языков
                 JsonNode rootNode = objectMapper.readTree(response.getBody());
                 JsonNode languagesNode = rootNode.path("data").path("languages");
 
@@ -87,17 +96,21 @@ public class LanguageService {
                         languagesNode.toString(), new TypeReference<>() {}
                 );
 
+                // Преобразуем список языков в TreeSet
                 return languagesList.stream()
                         .map(Language::getLanguage)
                         .collect(Collectors.toCollection(TreeSet::new));
             } catch (IOException e) {
-                throw new RuntimeException("Error parsing response", e);
+                // Бросаем исключение при ошибке парсинга
+                throw new RuntimeException("Ошибка парсинга", e);
             }
         } else {
-            throw new RuntimeException("Error fetching languages: " + response.getStatusCode() + " " + response.getBody());
+            // Бросаем исключение при неудачной попытке получить список языков
+            throw new RuntimeException("Не удалось получить список языков: " + response.getStatusCode() + " " + response.getBody());
         }
     }
 
+    // Проверяем, поддерживается ли данный язык
     public boolean isNotSupported(String languageCode) {
         return !availableLanguages.contains(languageCode);
     }

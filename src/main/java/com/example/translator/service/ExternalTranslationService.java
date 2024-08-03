@@ -36,36 +36,36 @@ public class ExternalTranslationService {
         this.restTemplate = restTemplate;
     }
 
+    // Использованное Api имеет ограничение за количество запросов в секунду,
+    // из-за чего оно может отказать в переводе слова и вызвать исключение
+    // Повторяем при выбросе исключения. До 3-х повторений с увеличивающимся интервалом
     @SneakyThrows
-    //повторяем при выбросе исключения
     @Retryable(
             retryFor = { Exception.class },
             backoff = @Backoff(delay = 1000, multiplier = 2))
     public String translateWord(String word, String sourceLang, String targetLang) {
-        //String baseUrl = "https://google-translator9.p.rapidapi.com/v2";
 
+        // URI с параметрами запроса
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(baseUrl)
                 .queryParam("q", word)
                 .queryParam("source", sourceLang)
                 .queryParam("target", targetLang);
-
         URI uri = builder.build().toUri();
 
+        // Устанавливаем заголовки для запроса
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("x-rapidapi-host", "google-translator9.p.rapidapi.com");
         headers.set("x-rapidapi-key", rapidApiKey);
-
         HttpEntity<Void> entity = new HttpEntity<>(headers);
 
-        logger.info("Sending request to URL: " + uri);
-        logger.info("Request headers: " + headers);
+        logger.info("Посылаем запрос URL: " + uri);
+        logger.info("Заголовки запросов: " + headers);
 
         ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.POST, entity, String.class);
-
         String responseBody = response.getBody();
 
-        logger.info("Received response: " + responseBody);
+        logger.info("Ответ: " + responseBody);
 
 
         // JSON преобразован в объект JsonNode, который использован для извлечения данных
@@ -78,7 +78,7 @@ public class ExternalTranslationService {
             String translatedText = translations.get(0).path("translatedText").asText();
             return URLDecoder.decode(translatedText, StandardCharsets.UTF_8);
         } else {
-            logger.warn("No translations found in the response.");
+            logger.warn("В ответе перевод не найден");
             return "";
         }
     }
