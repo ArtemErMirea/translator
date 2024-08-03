@@ -5,12 +5,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.TreeSet;
-
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class LanguageResponse {
-    private TreeSet<Language> languages;
+public class Language {
+    private String language;
+    private String name;
 }

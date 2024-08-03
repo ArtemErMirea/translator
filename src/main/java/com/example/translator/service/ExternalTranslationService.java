@@ -23,12 +23,15 @@ import java.nio.charset.StandardCharsets;
 @Service
 public class ExternalTranslationService {
 
-    private static final Logger logger = LoggerFactory.getLogger(ExternalTranslationService.class);
+    public static final Logger logger = LoggerFactory.getLogger(ExternalTranslationService.class);
 
     private final RestTemplate restTemplate;
 
     @Value("${rapidapi.key}")
     private String rapidApiKey;
+
+    @Value("${baseUrl}")
+    private String baseUrl;
 
     public ExternalTranslationService(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
@@ -41,7 +44,7 @@ public class ExternalTranslationService {
             maxAttempts = 3,
             backoff = @Backoff(delay = 1000, multiplier = 2))
     public String translateWord(String word, String sourceLang, String targetLang) {
-        String baseUrl = "https://google-translator9.p.rapidapi.com/v2";
+        //String baseUrl = "https://google-translator9.p.rapidapi.com/v2";
 
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(baseUrl)
                 .queryParam("q", word)
