@@ -46,9 +46,10 @@ public class InternalTranslationService {
         //Список CompletableFuture-ов - результатов параллельных вычислений
         // Созданы задачи для перевода каждого слова
         List<CompletableFuture<String>> futures = Stream.of(words)
-                .map(word -> CompletableFuture.supplyAsync(() -> {
-                    return externalTranslationService.translateWord(word, sourceLang, targetLang);
-                }, executor)).toList();
+                .map(
+                        word -> CompletableFuture.supplyAsync(
+                        () -> externalTranslationService.translateWord(word, sourceLang, targetLang), executor)
+                ).toList();
 
         // Обработка всех результатов
         List<String> translatedWords = futures.stream()
