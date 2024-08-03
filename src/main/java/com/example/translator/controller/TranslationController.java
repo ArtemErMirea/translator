@@ -34,11 +34,11 @@ public class TranslationController {
     @PostMapping("/translate")
     public ResponseEntity<String> translate(@RequestBody TranslationRequestBody request,
                                             @RequestHeader(value = "X-Forwarded-For", defaultValue = "127.0.0.1") String ipAddress) {
-        if (!languageService.isLanguageSupported(request.getSource())) {
+        if (languageService.isNotSupported(request.getSource())) {
             return ResponseEntity.badRequest().body("Не найден язык исходного сообщения");
         }
 
-        if (!languageService.isLanguageSupported(request.getTarget())) {
+        if (languageService.isNotSupported(request.getTarget())) {
             return ResponseEntity.badRequest().body("Не найден целевой язык сообщения");
         }
         try {

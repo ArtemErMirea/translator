@@ -1,10 +1,7 @@
 package com.example.translator.service;
 
 import com.example.translator.model.Language;
-import com.example.translator.model.LanguageResponse;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
@@ -58,10 +55,9 @@ public class LanguageService {
         }
     }
     @SneakyThrows
-    //повторяем при выбросе исключения
+    // Повторяем при выбросе исключения. До 3-х повторений (по умолчанию) с увеличивающимся интервалом
     @Retryable(
             retryFor = { Exception.class },
-            maxAttempts = 3,
             backoff = @Backoff(delay = 1000, multiplier = 2))
     public TreeSet<String> getSupportedLanguages() {
         String target = "en"; // Specify the target language here
@@ -88,7 +84,8 @@ public class LanguageService {
                 JsonNode languagesNode = rootNode.path("data").path("languages");
 
                 List<Language> languagesList = objectMapper.readValue(
-                        languagesNode.toString(), new TypeReference<List<Language>>() {}
+                        languagesNode.toString(), new TypeReference<>() {
+                        }
                 );
 
                 return languagesList.stream()
@@ -102,8 +99,8 @@ public class LanguageService {
         }
     }
 
-    public boolean isLanguageSupported(String languageCode) {
-        return availableLanguages.contains(languageCode);
+    public boolean isNotSupported(String languageCode) {
+        return !availableLanguages.contains(languageCode);
     }
 
     @Recover

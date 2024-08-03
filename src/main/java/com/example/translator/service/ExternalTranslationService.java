@@ -11,7 +11,6 @@ import org.springframework.http.*;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -41,7 +40,6 @@ public class ExternalTranslationService {
     //повторяем при выбросе исключения
     @Retryable(
             retryFor = { Exception.class },
-            maxAttempts = 3,
             backoff = @Backoff(delay = 1000, multiplier = 2))
     public String translateWord(String word, String sourceLang, String targetLang) {
         //String baseUrl = "https://google-translator9.p.rapidapi.com/v2";
