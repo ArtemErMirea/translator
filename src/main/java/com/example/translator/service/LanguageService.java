@@ -84,8 +84,7 @@ public class LanguageService {
                 JsonNode languagesNode = rootNode.path("data").path("languages");
 
                 List<Language> languagesList = objectMapper.readValue(
-                        languagesNode.toString(), new TypeReference<>() {
-                        }
+                        languagesNode.toString(), new TypeReference<>() {}
                 );
 
                 return languagesList.stream()
@@ -103,9 +102,9 @@ public class LanguageService {
         return !availableLanguages.contains(languageCode);
     }
 
-    @Recover
+    @Recover // Выполнится, если ни одна из попыток не сработает
     public TreeSet<String> recover(Exception e) {
-        logger.error("Failed to fetch languages after retries", e);
+        logger.error("Не удалось получить список языков после повторных попыток", e);
         return new TreeSet<>();
     }
 }
