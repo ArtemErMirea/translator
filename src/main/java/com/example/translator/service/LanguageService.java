@@ -1,7 +1,5 @@
 package com.example.translator.service;
 
-import com.example.translator.model.Language;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
@@ -20,9 +18,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.List;
+import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.stream.Collectors;
 
 @Service
 public class LanguageService {
@@ -31,13 +28,12 @@ public class LanguageService {
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final RestTemplate restTemplate;
 
+    private TreeMap<String, String> availableLanguages;
     @Value("${rapidapi.key}")
     private String rapidApiKey;
 
     @Value("${languageUrl}")
     private String baseUrl;
-
-    private TreeSet<String> availableLanguages;
 
     @Autowired
     public LanguageService(RestTemplate restTemplate) {
@@ -54,7 +50,7 @@ public class LanguageService {
         } catch (Exception e) {
             // Логируем ошибку при неудачной попытке получить список языков
             logger.error("Не удалось получить список языков", e);
-            this.availableLanguages = new TreeSet<>();
+            this.availableLanguages = new TreeMap<>();
         }
     }
 
@@ -63,7 +59,7 @@ public class LanguageService {
     @Retryable(
             retryFor = { Exception.class },
             backoff = @Backoff(delay = 1000, multiplier = 2))
-    public TreeSet<String> getSupportedLanguages() {
+    public TreeMap<String, String> getSupportedLanguages() {
         String target = "en"; // Указываем целевой язык
 
         // URI с параметрами запроса
@@ -92,14 +88,14 @@ public class LanguageService {
                 JsonNode rootNode = objectMapper.readTree(response.getBody());
                 JsonNode languagesNode = rootNode.path("data").path("languages");
 
-                List<Language> languagesList = objectMapper.readValue(
-                        languagesNode.toString(), new TypeReference<>() {}
-                );
+                // Преобразуем JsonNode в TreeMap<String, String>
+                TreeMap<String, String> languagesMap = new TreeMap<>();
+                for (JsonNode languageNode : languagesNode) {
+                    languagesMap.put(languageNode.path("language").asText(),
+                            languageNode.path("name").asText());
+                }
 
-                // Преобразуем список языков в TreeSet
-                return languagesList.stream()
-                        .map(Language::getLanguage)
-                        .collect(Collectors.toCollection(TreeSet::new));
+                return languagesMap;
             } catch (IOException e) {
                 // Бросаем исключение при ошибке парсинга
                 throw new RuntimeException("Ошибка парсинга", e);
@@ -112,7 +108,7 @@ public class LanguageService {
 
     // Проверяем, поддерживается ли данный язык
     public boolean isNotSupported(String languageCode) {
-        return !availableLanguages.contains(languageCode);
+        return !availableLanguages.containsKey(languageCode);
     }
 
     @Recover // Выполнится, если ни одна из попыток не сработает

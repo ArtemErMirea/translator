@@ -7,7 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.TreeSet;
+import java.util.TreeMap;
 
 import static com.example.translator.service.ExternalTranslationService.logger;
 
@@ -20,9 +20,9 @@ public class TranslationController {
     private final InternalTranslationService translationService;
 
     @GetMapping("/languages")
-    public ResponseEntity<TreeSet<String>> getAvailableLanguages() {
+    public ResponseEntity<TreeMap<String, String>> getAvailableLanguages() {
         try {
-            TreeSet<String> languages = languageService.getSupportedLanguages();
+            TreeMap<String, String> languages = languageService.getSupportedLanguages();
             return ResponseEntity.ok(languages);
         } catch (Exception e) {
             // логирование ошибки
