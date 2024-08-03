@@ -19,7 +19,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.io.IOException;
 import java.net.URI;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
 @Service
 public class LanguageService {
@@ -112,8 +111,8 @@ public class LanguageService {
     }
 
     @Recover // Выполнится, если ни одна из попыток не сработает
-    public TreeSet<String> recover(Exception e) {
+    public TreeMap<String, String> recover(Exception e) {
         logger.error("Не удалось получить список языков после повторных попыток", e);
-        return new TreeSet<>();
+        return new TreeMap<>();
     }
 }
