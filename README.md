@@ -66,17 +66,24 @@ curl --location 'http://localhost:8080/translate' \
 curl --location 'http://localhost:8080/languages'
 ```
 ## Примеры работы:
-Перевод на Русский, как видите, каждое слово переведено отдельно
+### Перевод на Русский, как видите, каждое слово переведено отдельно
+
 ![image](https://github.com/user-attachments/assets/0162836b-e4cf-4e9e-9e30-be782ebb4343)
 
-Перевод на Китайский
+### Перевод на Китайский
+
 ![image](https://github.com/user-attachments/assets/1863bfb7-887a-4000-9680-56bb4a798856)
 
-Если ввести неправильный язык перевода:
+### Если ввести неправильный исхдный язык:
+
 ![image](https://github.com/user-attachments/assets/495ec2fc-9407-41db-95c9-76bb738d3c94)
+
+###  Если ввести неправильный язык перевода:
+
 ![image](https://github.com/user-attachments/assets/2a7b3ce5-f0e5-40c9-a323-00b55ddde171)
 
-Таблица:
+
+### Таблица:
 ![image](https://github.com/user-attachments/assets/dae03cd5-735a-466c-a1cd-9dcc50b50bee)
 
 
