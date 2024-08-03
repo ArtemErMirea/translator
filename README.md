@@ -82,6 +82,9 @@ curl --location 'http://localhost:8080/languages'
 
 ![image](https://github.com/user-attachments/assets/2a7b3ce5-f0e5-40c9-a323-00b55ddde171)
 
+### Get списка доступных языков
+![image](https://github.com/user-attachments/assets/67f5535b-e73a-456f-a763-9f3b749cc125)
+
 
 ### Таблица:
 ![image](https://github.com/user-attachments/assets/dae03cd5-735a-466c-a1cd-9dcc50b50bee)
