@@ -23,6 +23,7 @@
 
 3. Приложение будет доступно по адресу `http://localhost:8080`.
 4. Комaнда создания таблицы для PostgeSQL. В эту таблицу будет записываться история переводов
+```sql
 CREATE TABLE translation_requests (
     id BIGSERIAL PRIMARY KEY,
     ip_address VARCHAR(255) NOT NULL,
@@ -30,6 +31,7 @@ CREATE TABLE translation_requests (
     translated_string TEXT NOT NULL,
     request_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+```
 Подключение подпишите в файле application.properties:
 spring.datasource.url=jdbc:postgresql://localhost:5432/translations
 spring.datasource.username=
@@ -37,13 +39,14 @@ spring.datasource.password=
 spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
 ## Использование
 Для выполнения запроса на перевод, отправьте POST-запрос на `/translate`с телом вида
+```sh
 {
   "q": "Hello world, this is my first program",
   "source": "en",
   "target": "ru",
   "format": "text"
 }
-
+```
 Чтобы получить список доступных языков, отправьте Get-запрос на `/languages`
 
 Пример запроса:
@@ -56,5 +59,6 @@ curl --location 'http://localhost:8080/translate' \
   "target": "de",
   "format": "text"
 }'
+```
 
 curl --location 'http://localhost:8080/languages'
