@@ -15,7 +15,7 @@
     git clone <URL>
     cd translator
     ```
-2. Настройте подключение к API
+2. Настройте подключение к API:
    Получите ключ и внестие его в файл `application.properties`:
     ```properties
     spring.application.name=translator
