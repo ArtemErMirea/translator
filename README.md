@@ -16,7 +16,7 @@
     cd translator
     ```
 2. Настройте подключение к API
-   Получите ключь и внестие его в файл `application.properties`:
+   Получите ключ и внестие его в файл `application.properties`:
     ```properties
     spring.application.name=translator
     
