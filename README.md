@@ -15,8 +15,16 @@
     git clone <URL>
     cd translator
     ```
-
-2. Настройте подключение к базе данных PostgreSQL:
+2. Настройте подключение к API
+   Получите ключь и внестие его в файл `application.properties`:
+    ```properties
+    spring.application.name=translator
+    
+    rapidapi.key=YOUR_KEY
+    baseUrl = https://google-translator9.p.rapidapi.com/v2
+    languageUrl = https://google-translator9.p.rapidapi.com/v2/languages
+    ```
+4. Настройте подключение к базе данных PostgreSQL:
     - Создайте таблицу для хранения истории переводов:
         ```sql
         CREATE TABLE translation_requests (
@@ -27,20 +35,21 @@
             request_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
         ```
-    - Заполните файл `application.properties`:
+    - Заполните файл `application.properties`.:
         ```properties
+        
         spring.datasource.url=jdbc:postgresql://localhost:5432/YOUR_DB
         spring.datasource.username=YOUR_USERNAME
         spring.datasource.password=YOUR_PASSWORD
         spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
         ```
 
-3. Соберите проект и запустите:
+5. Соберите проект и запустите:
     ```sh
     ./mvnw spring-boot:run
     ```
 
-4. Приложение будет доступно по адресу `http://localhost:8080`.
+6. Приложение будет доступно по адресу `http://localhost:8080`.
 ## Использование
 Для выполнения запроса на перевод, отправьте POST-запрос на `/translate`с телом вида
 ```sh
