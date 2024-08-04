@@ -16,29 +16,31 @@
     cd translator
     ```
 
-2. Соберите проект и запустите:
+2. Настройте подключение к базе данных PostgreSQL:
+    - Создайте таблицу для хранения истории переводов:
+        ```sql
+        CREATE TABLE translation_requests (
+            id BIGSERIAL PRIMARY KEY,
+            ip_address VARCHAR(255) NOT NULL,
+            input_string TEXT NOT NULL,
+            translated_string TEXT NOT NULL,
+            request_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+        ```
+    - Заполните файл `application.properties`:
+        ```properties
+        spring.datasource.url=jdbc:postgresql://localhost:5432/YOUR_DB
+        spring.datasource.username=YOUR_USERNAME
+        spring.datasource.password=YOUR_PASSWORD
+        spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
+        ```
+
+3. Соберите проект и запустите:
     ```sh
     ./mvnw spring-boot:run
     ```
 
-3. Приложение будет доступно по адресу `http://localhost:8080`.
-4. Комaнда создания таблицы для PostgeSQL. В эту таблицу будет записываться история переводов
-```sql
-CREATE TABLE translation_requests (
-    id BIGSERIAL PRIMARY KEY,
-    ip_address VARCHAR(255) NOT NULL,
-    input_string TEXT NOT NULL,
-    translated_string TEXT NOT NULL,
-    request_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-```
-```properties
-# Подключение подпишите в файле application.properties:
-spring.datasource.url=jdbc:postgresql://localhost:5432/YOUR_DB
-spring.datasource.username=YOUR_USERNAME
-spring.datasource.password=YOUR_PASSWORD
-spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
-```
+4. Приложение будет доступно по адресу `http://localhost:8080`.
 ## Использование
 Для выполнения запроса на перевод, отправьте POST-запрос на `/translate`с телом вида
 ```sh
